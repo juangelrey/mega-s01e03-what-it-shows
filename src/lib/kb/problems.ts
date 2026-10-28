@@ -1,6 +1,7 @@
 // The problems #4471 really holds. causes.ts says why a date flips; this file adds the reports
 // whose date did not flip at all: they moved by one day (desk-notes.json `oneDayMove`). A one-day
-// move is a timezone, not a day-first locale, so the parser fix will not close it.
+// move is a timezone, not a day-first locale, so the parser fix will not close it. Counts follow the
+// desk's view: those reports stay counted where they are filed, and the timezone row counts them again.
 import { causeOf, uniqueById, type Report, type Tenant } from '#lib/kb/causes';
 
 export type Problem = 'parser' | 'hint' | 'timezone';
@@ -36,9 +37,11 @@ export function splitTicket(
 ): ProblemGroup[] {
   const merged = uniqueById(all).filter((r) => r.mergedInto === ticket);
   const by = new Map<ProblemGroup['problem'], Report[]>();
+  const add = (p: ProblemGroup['problem'], r: Report) => by.set(p, [...(by.get(p) ?? []), r]);
   for (const r of merged) {
-    const p = problemOf(r, tenantOf(r), oneDayMove) ?? 'unplaced';
-    by.set(p, [...(by.get(p) ?? []), r]);
+    // Counted the desk's way: where it is filed (causes.ts). A one-day move is also counted under timezone.
+    add(causeOf(r, tenantOf(r)) ?? 'unplaced', r);
+    if (problemOf(r, tenantOf(r), oneDayMove) === 'timezone') add('timezone', r);
   }
   return [...by.entries()]
     .map(([problem, rs]) => {

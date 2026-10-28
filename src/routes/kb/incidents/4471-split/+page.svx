@@ -2,7 +2,7 @@
 layout: runbook
 title: '#4471 split · three problems, not one'
 owner: support desk
-status: open
+status: living
 reviewed: 2026-10-28
 signature: v1.eyJzdWIiOiIxOTUzIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyMjgyMTQsImV4cCI6MTc5MzMxNDYxNH0.05CflnOduqju8Q4Qz5kSK6ihjz5PtXoCJ2pQR6aXCWE
 ---
@@ -13,18 +13,24 @@ signature: v1.eyJzdWIiOiIxOTUzIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYX
   import RenderStamp from '#lib/kb/RenderStamp.svelte';
 
   const repo = 'https://github.com/juangelrey/mega-s01e03-what-it-shows/issues';
-  const tickets = { parser: repo + '/1', hint: repo + '/2', timezone: repo + '/3' };
+  const tickets = {
+    parser: { url: repo + '/1', state: 'fixed · closed 05 Oct' },
+    hint: { url: repo + '/2', state: "won't fix · booking-v3 retired" },
+    timezone: { url: repo + '/3', state: 'open' },
+  };
 </script>
 
 [#4471](/kb/incidents/4471) was merged on subject ([decision 0001](/kb/decisions/0001-dedupe-by-subject)), so
 every report that said "wrong date" landed in it. Read by tenant, form and body, it holds three problems.
-One fix will not close it: each problem now has its own ticket.
+Each problem has its own ticket.
 
 <Callout kind="warn">
-The parser fix queued for #4471 closes the <code>parser</code> row only. The other two stay open after it ships.
+Engineering closed #4471 on 5 October: the parser is fixed (<code>fix(dates): parse dd/mm for eu locales</code>)
+and the booking-v3 form is retired, so its hint is won't fix. Neither touches the invite's timezone:
+the <code>timezone</code> row is still open.
 </Callout>
 
-## What #4471 holds
+## What #4471 held
 
 <ProblemTable ticket={4471} {tickets} />
 
@@ -37,7 +43,7 @@ The parser fix queued for #4471 closes the <code>parser</code> row only. The oth
   Same symptom, different code: the parser fix does not touch it. Fix: the hint follows the tenant's locale.
 - **timezone**: the date did not flip, it moved by **one day** (Monday instead of Tuesday, Toronto and Lisbon
   on different days, an invite that "arrived before the booking"). The desk noted these in
-  `desk-notes.json` and filed them under `parser`. A one-day move is a timezone on the invite, not a
+  `desk-notes.json` and counts them under `parser`, where they are filed; the table counts them there too. A one-day move is a timezone on the invite, not a
   date order. Fix: the invite carries the tenant's timezone.
 
 Intake's tag is a guess from the reporter's browser; do not triage on it. The table above counts where it
@@ -47,6 +53,7 @@ disagrees.
 
 - Subject alone merged three problems. When a big ticket forms, check its reports against tenant, form and
   whether the date flipped or moved, before marking it known.
-- New reports: file under the row they match, not under #4471.
+- New reports: a flipped date after 5 October is a regression of the parser fix; a one-day move goes to the
+  timezone ticket. Nothing goes under #4471 again.
 
 <RenderStamp {signature} />
