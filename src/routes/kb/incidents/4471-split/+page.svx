@@ -1,0 +1,52 @@
+---
+layout: runbook
+title: '#4471 split · three problems, not one'
+owner: support desk
+status: open
+reviewed: 2026-10-28
+signature: v1.eyJzdWIiOiIxOTUzIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyMjgyMTQsImV4cCI6MTc5MzMxNDYxNH0.05CflnOduqju8Q4Qz5kSK6ihjz5PtXoCJ2pQR6aXCWE
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const repo = 'https://github.com/juangelrey/mega-s01e03-what-it-shows/issues';
+  const tickets = { parser: repo + '/1', hint: repo + '/2', timezone: repo + '/3' };
+</script>
+
+[#4471](/kb/incidents/4471) was merged on subject ([decision 0001](/kb/decisions/0001-dedupe-by-subject)), so
+every report that said "wrong date" landed in it. Read by tenant, form and body, it holds three problems.
+One fix will not close it: each problem now has its own ticket.
+
+<Callout kind="warn">
+The parser fix queued for #4471 closes the <code>parser</code> row only. The other two stay open after it ships.
+</Callout>
+
+## What #4471 holds
+
+<ProblemTable ticket={4471} {tickets} />
+
+## How to tell them apart
+
+- **parser**: the tenant writes the day first (every tenant on file does) and the date came out with day and
+  month swapped. Any channel. Fix: the shared parser reads the tenant's locale.
+- **hint**: the report came through the **form** of a tenant on **booking-v3**. That form prints
+  `MM/DD/YYYY` under the date field, people type month first as told, and the form reads it day first.
+  Same symptom, different code: the parser fix does not touch it. Fix: the hint follows the tenant's locale.
+- **timezone**: the date did not flip, it moved by **one day** (Monday instead of Tuesday, Toronto and Lisbon
+  on different days, an invite that "arrived before the booking"). The desk noted these in
+  `desk-notes.json` and filed them under `parser`. A one-day move is a timezone on the invite, not a
+  date order. Fix: the invite carries the tenant's timezone.
+
+Intake's tag is a guess from the reporter's browser; do not triage on it. The table above counts where it
+disagrees.
+
+## For the desk
+
+- Subject alone merged three problems. When a big ticket forms, check its reports against tenant, form and
+  whether the date flipped or moved, before marking it known.
+- New reports: file under the row they match, not under #4471.
+
+<RenderStamp {signature} />

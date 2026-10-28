@@ -34,3 +34,8 @@ Support desk. Decision records: whoever signed them.
 ---
 
 Exported 2026-10-04 from the `support` repo, `apps/kb/` → `src/`.
+
+## Build
+
+`npm install`, then `npm run build` writes the static kb to `build/` (committed, so the desk can open the
+pages as rendered). `docs/4471-split.png` is the #4471 split page as the desk sees it.
